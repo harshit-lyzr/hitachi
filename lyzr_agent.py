@@ -1,10 +1,14 @@
 import requests
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def chat_with_agent(agent_id, message):
     url = 'https://agent-prod.studio.lyzr.ai/v3/inference/chat/'
     headers = {
         'Content-Type': 'application/json',
-        'x-api-key': 'sk-default-Kp8ZjZ3mlqbSJ6RqommLdD57Sd8CGOaG'
+        'x-api-key': os.getenv("API_KEY")
     }
     data = {
         "user_id": "harshit@lyzr.ai",
