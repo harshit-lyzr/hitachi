@@ -50,7 +50,7 @@ async def generate_outline(topic: str,pages: int, words: int):
     refined_sections = refine_outline.split("|@|")
     end = time.time()
 
-    return {"1_outline":outline,"outline": refined_sections, "execution_time": end - start}
+    return {"1_outline":outline, "outline": refined_sections, "execution_time": end - start}
 
 
 
@@ -61,7 +61,7 @@ class OutlineInput(BaseModel):
 
 
 # Modified to not be async since we're using it with executor.map
-def process_outline_sync(outline):
+def process_outline_sync(outline: str, words: int):
     print("outline entered")
     # Step 1: Get sectional questions
     sectional_question = chat_with_agent(SECTION_Q, f"Topic: {outline}")
@@ -73,12 +73,10 @@ def process_outline_sync(outline):
         responses = list(executor.map(lambda q: (q, retrieve_rag_data(RAG_ID, q)), ques))
         print("RAG Done")
 
-    combined_responses = {q: [res["text"] for res in resp.get("results", [])] for q, resp in responses}
-    print("combined answer done")
 
     # Step 3: Generate section answer (non-async version)
     section_answer = chat_with_agent(SECTION_A,
-                                     f"Context: {combined_responses}\n\nSECTION OUTLINE: {outline}")
+                                     f"Context: {responses}\n\nSECTION OUTLINE: {outline} Words Count: {words}")
     print("section answer generated")
     return section_answer
 
@@ -90,7 +88,7 @@ async def process_outline_api(input_data: OutlineInput):
     # If chat_with_agent is actually asynchronous, you need a different approach
     # Using a regular ThreadPoolExecutor for non-async functions
     with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-        results = list(executor.map(process_outline_sync, input_data.outlines))
+        results = list(executor.map(lambda outline: process_outline_sync(outline, input_data.words), input_data.outlines))
 
     end = time.time()
     return {"processed_outlines": results, "total_time": end - start}

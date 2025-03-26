@@ -2,6 +2,8 @@ import os
 import requests
 import time
 from dotenv import load_dotenv
+from utils import filter_responses
+
 load_dotenv()
 
 
@@ -16,7 +18,8 @@ def retrieve_rag_data(rag_id: str, query: str, retries=3, delay=1):
         try:
             response = requests.get(url, headers=headers, params=params)
             response.raise_for_status()
-            return response.json()
+            rag_data = filter_responses(response.json())
+            return rag_data
         except requests.exceptions.RequestException as e:
             print(f"Attempt {attempt + 1} failed: {e}")
             if attempt < retries - 1:
@@ -24,5 +27,4 @@ def retrieve_rag_data(rag_id: str, query: str, retries=3, delay=1):
             else:
                 print("Max retries reached. Returning None.")
                 return ""
-
 
