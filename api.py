@@ -31,6 +31,12 @@ SECTION_A = os.getenv("SECTION_A")
 RAG_ID = os.getenv("RAG_ID")
 
 
+@app.get("/health")
+def health_check():
+     """
+     Health check endpoint to verify if the service is running.
+     """
+     return {"status": "healthy"}
 
 @app.post("/generate_outline/")
 async def generate_outline(topic: str,pages: int, words: int):
