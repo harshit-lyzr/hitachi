@@ -47,10 +47,10 @@ async def generate_outline(topic: str,pages: int, words: int):
     refine_outline = chat_with_agent(AGENT_3,
                                      f"Topic: {topic} Draft Outline: {outline} No of Pages:{pages} Words per page: {words}")
 
-    refined_sections = refine_outline.split("\n\n")
+    refined_sections = refine_outline.split("|@|")
     end = time.time()
 
-    return {"outline": refined_sections, "execution_time": end - start}
+    return {"1_outline":outline,"outline": refined_sections, "execution_time": end - start}
 
 
 
