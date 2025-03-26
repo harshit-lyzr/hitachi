@@ -7,10 +7,21 @@ from fastapi import FastAPI
 import time
 from lyzr_agent import chat_with_agent
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
+
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change this to specific origins for better security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 AGENT_1 = os.getenv("AGENT_1")
 AGENT_2 = os.getenv("AGENT_2")
