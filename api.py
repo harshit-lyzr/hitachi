@@ -39,18 +39,19 @@ def health_check():
      return {"status": "healthy"}
 
 @app.post("/generate_outline/")
-async def generate_outline(topic: str,pages: int, words: int):
+async def generate_outline(topic: str, pages: int, words: int):
     start = time.time()
-
+    subtopic = chat_with_agent("67dbc903156a494cf6314224",f"Topic: {topic}")
+    rag_data = retrieve_rag_data(RAG_ID, subtopic)
     # subtopic = chat_with_agent(AGENT_1, f"Topic: {topic}")
     outline = chat_with_agent(AGENT_2, f"Topic: {topic} No of Pages:{pages} Words per page: {words}")
     refine_outline = chat_with_agent(AGENT_3,
-                                     f"Topic: {topic} Draft Outline: {outline} No of Pages:{pages} Words per page: {words}")
+                                     f"Topic: {topic} Draft Outline: {outline} No of Pages:{pages} Words per page: {words} Subtopic: {subtopic} context: {rag_data}")
 
     refined_sections = refine_outline.split("|@|")
     end = time.time()
 
-    return {"1_outline":outline, "outline": refined_sections, "execution_time": end - start}
+    return {"1_outline": outline, "outline": refined_sections, "execution_time": end - start}
 
 
 
@@ -73,10 +74,10 @@ def process_outline_sync(outline: str, words: int):
         responses = list(executor.map(lambda q: (q, retrieve_rag_data(RAG_ID, q)), ques))
         print("RAG Done")
 
-
+    print(f"Context: {responses}\n\nOutline: {outline} Word Count: {words}")
     # Step 3: Generate section answer (non-async version)
     section_answer = chat_with_agent(SECTION_A,
-                                     f"Context: {responses}\n\nSECTION OUTLINE: {outline} Words Count: {words}")
+                                     f"Context: {responses}\n\nOutline: {outline} Word Count: {words}")
     print("section answer generated")
     return section_answer
 
