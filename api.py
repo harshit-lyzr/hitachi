@@ -8,6 +8,7 @@ import time
 from lyzr_agent import chat_with_agent
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+import json
 
 load_dotenv()
 
@@ -47,11 +48,11 @@ async def generate_outline(topic: str, pages: int, words: int):
     outline = chat_with_agent(AGENT_2, f"Topic: {topic} No of Pages:{pages} Words per page: {words}")
     refine_outline = chat_with_agent(AGENT_3,
                                      f"Topic: {topic} Draft Outline: {outline} No of Pages:{pages} Words per page: {words} Subtopic: {subtopic} context: {rag_data}")
-
-    refined_sections = refine_outline.split("|@|")
+    # print(refine_outline)
+    refine_data = json.loads(refine_outline)
     end = time.time()
 
-    return {"1_outline": outline, "outline": refined_sections, "execution_time": end - start}
+    return {"1_outline": outline, "outline": refine_data['outlines'], "execution_time": end - start}
 
 
 
