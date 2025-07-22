@@ -43,13 +43,22 @@ def health_check():
 async def generate_outline(topic: str, pages: int, words: int):
     start = time.time()
     subtopic = chat_with_agent("67dbc903156a494cf6314224",f"Topic: {topic}")
+    print(subtopic)
     rag_data = retrieve_rag_data(RAG_ID, subtopic)
+    print(rag_data)
     # subtopic = chat_with_agent(AGENT_1, f"Topic: {topic}")
     outline = chat_with_agent(AGENT_2, f"Topic: {topic} No of Pages:{pages} Words per page: {words}")
+    print("Outline: "+outline)
     refine_outline = chat_with_agent(AGENT_3,
                                      f"Topic: {topic} Draft Outline: {outline} No of Pages:{pages} Words per page: {words} Subtopic: {subtopic} context: {rag_data}")
-    # print(refine_outline)
-    refine_data = json.loads(refine_outline)
+    print(refine_outline)
+    cleaned_data = refine_outline.replace("\n", " ").replace("\\", "")
+
+    # ✅ Now parse it
+    refine_data = json.loads(cleaned_data)
+    print(refine_data)
+    # refine_data = json.loads(refine_outline)
+    # print(refine_data)
     end = time.time()
 
     return {"1_outline": outline, "outline": refine_data['outlines'], "execution_time": end - start}
